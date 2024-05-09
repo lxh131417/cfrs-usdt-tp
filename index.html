@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CFRS</title>
+    <link rel="stylesheet" href="css/swiper-bundle.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/index.css">
+    <script src="https://cdn.ethers.io/lib/ethers-5.0.umd.min.js"></script>
+    <script src="js/contract.js"></script>
+</head>
+
+<body>
+    <div class="maxbox">
+        <div>
+            <div class="top">
+                <div class="topid">
+                    <div id="walletAddress"></div>
+                    <div id="walletBalanceTop"></div>
+                </div>
+                <p>CFRS</p>
+            </div>
+            <div class="main">
+                <div class="header">
+                    <p>Welcome To CFRS</p>
+                    <!-- 修改引用此元素的事件处理程序 -->
+                    <a href="javascript:void(null);" onclick="copyWalletAddress()">
+                        <span>分享好友</span>
+                        <img src="images/fx.png" alt="">
+                    </a>
+                </div>
+                <div class="affivhe">
+                    <img src="images/gg.png" alt="">
+                    <div id="vipStatus" class="top-left-corner">
+                       
+                    </div>
+                </div>
+
+
+                <div class="banner">
+                    <div class="item1">
+                        <div class="swiper mySwiper">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide">
+                                    <div class="card1">
+                                        <img src="images/ban-1.png" alt="">
+                                        <h2>1.66500000</h2>
+                                        <p>我的CFRS</p>
+                                        <b><span>CFRSCLUB</span></b>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="card1">
+                                        <img src="images/ban-1.png" alt="">
+                                        <h2>0.82600000</h2>
+                                        <p>我的CFRS</p>
+                                        <b><span>互助共赢</span></b>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="community">
+                    <h1>加入社区</h1>
+                    <p>快来加入我们吧！</p>
+                    <input type="number" id="membershipFee" placeholder="Enter fee amount" />
+                    <button onclick="joinMembership()">加入会员</button>
+
+
+                    <!-- 修改后的显示钱包余额的元素 -->
+                    <div id="walletBalanceCommunity" style="display: inline-block; margin-left: 20px;"></div>
+                    <img src="images/sq.png" alt="">
+                </div>
+                <div class="set">
+                    <!-- 添加输入框使用户能输入推荐人地址 -->
+                    <input type="text" id="referrer-address" placeholder="输入推荐人地址">
+                    <button onclick="registerReferral()">绑定推荐人</button>
+                </div>
+
+                <div class="footer">
+                    <a href="index.html">
+                        <img src="images/f1-2.png" alt="">
+                        <p>首页</p>
+                    </a>
+                    <a href="item.html">
+                        <img src="images/f2-1.png" alt="">
+                        <p>项目</p>
+                    </a>
+                    <a href="user.html">
+                        <img src="images/f3-1.png" alt="">
+                        <p>个人</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/swiper-bundle.min.js"></script>
+    <script>
+        var swiper = new Swiper(".mySwiper", {
+            slidesPerView: 1,
+            spaceBetween: 30,
+            loop: true,
+            autoplay: {
+                delay: 2500,
+                disableOnInteraction: false,
+            },
+        });
+
+        let currentAddress = ''; // 用于存储当前地址
+
+        // 全局的ethers提供者和合约实例
+        let provider, contract;
+
+        window.addEventListener('load', async () => {
+            if (window.ethereum) {
+                await setup(); // 设置ethers提供者和合约实例
+                const accounts = await provider.listAccounts();
+                if (accounts.length > 0) {
+                    currentAddress = accounts[0]; // 存储当前地址
+                    updateDisplay(currentAddress); // 更新地址及余额显示
+                } else {
+                    await provider.send("eth_requestAccounts", []);
+                    updateDisplay(accounts[0]);
+                }
+                // 监听账户变化
+                window.ethereum.on('accountsChanged', function (accounts) {
+                    currentAddress = accounts[0]; // 更新当前地址
+                    updateDisplay(accounts[0]); // 更新地址及余额显示
+                });
+            } else {
+                console.log("Please install MetaMask!");
+            }
+        });
+
+        async function setup() {
+            provider = new ethers.providers.Web3Provider(window.ethereum);
+            await provider.send("eth_requestAccounts", []);
+            const signer = provider.getSigner();
+            contract = new ethers.Contract(contractAddress, contractABI, signer);
+        }
+
+        function updateDisplay(address) {
+            updateWalletAddressDisplay(address);
+            updateWalletBalance(address, 'walletBalanceTop');
+        }
+
+        // 更新钱包地址显示
+        function updateWalletAddressDisplay(address) {
+            const walletAddressElement = document.getElementById('walletAddress');
+            let displayedAddress = address.slice(0, 4) + '...' + address.slice(-4);
+            walletAddressElement.innerText = `币址: ${displayedAddress}`;
+            walletAddressElement.style.fontSize = '0.8em';
+        }
+
+        // 更新钱包余额为显示USDT余额
+        async function updateWalletBalance(address, elementId) {
+            if (window.ethereum && usdtTokenAddress && usdtAbi) {
+                // 使用提供的合约地址和ABI创建合约实例
+                const usdtContract = new ethers.Contract(usdtTokenAddress, usdtAbi, provider);
+
+                try {
+                    // 假设USDT合约有一个balanceOf方法
+                    const usdtBalance = await usdtContract.balanceOf(address);
+                    // USDT使用6位小数，因此需要正确转换wei (1 USDT = 1e6)
+                    const balanceInUsdt = ethers.utils.formatUnits(usdtBalance, 18); // 正确处理小数位，将wei转换为USDT
+
+                    // 取整数部分，去除小数点后的数值，因为显示为整数更符合需求
+                    const balanceInteger = Math.floor(parseFloat(balanceInUsdt));
+                    // 将数字格式化为易读格式，添加千位分隔符等
+                    const formattedBalance = new Intl.NumberFormat('en-US').format(balanceInteger);
+
+                    document.getElementById(elementId).innerText = `余额: ${formattedBalance} USDT`;
+                } catch (error) {
+                    console.error("Error fetching USDT balance: ", error);
+                }
+            }
+        }
+
+
+
+        function copyWalletAddress() {
+            if (currentAddress !== '') {
+                const currentPageURL = window.location.href; // 获取当前页面的网址
+                const textToCopy = `推荐码: ${currentAddress}\n网址: ${currentPageURL}`;
+                navigator.clipboard.writeText(textToCopy).then(function () {
+                    alert('推荐码和网址已复制到剪贴板！');
+                }, function (err) {
+                    console.error('无法复制文本: ', err);
+                });
+            } else {
+                alert('未找到推荐码。');
+            }
+        }
+
+        // 注册推荐关系
+        async function registerReferral() {
+            const referrerInput = document.getElementById("referrer-address");
+            const referrerAddress = referrerInput.value;
+            if (!referrerAddress) {
+                alert("请输入推荐人地址");
+                return;
+            }
+            try {
+                const tx = await contract.registerReferral(referrerAddress);
+                await tx.wait();
+                console.log("推荐人注册成功。交易hash:", tx.hash);
+                referrerInput.value = "***************************************************************";
+                referrerInput.style.backgroundColor = "#CCCCCC";
+                referrerInput.disabled = true;
+
+                alert("恭喜！推荐人注册成功。");
+                // 成功后才能调用加入会员的函数
+                // joinMembership(); // 根据需求是否在这里直接调用
+            } catch (error) {
+                console.error("推荐人注册失败", error);
+                alert("推荐人注册失败，请检查输入的地址和网络连接");
+            }
+        }
+
+        // async function joinMembership() {
+        //     // 检查是否安装了MetaMask
+        //     if (!window.ethereum) {
+        //         alert('请安装MetaMask使用此功能。');
+        //         return;
+        //     }
+        //     // 用window.ethereum初始化Web3提供者
+        //     const provider = new ethers.providers.Web3Provider(window.ethereum);
+        //     // 获取签名者实例
+        //     const signer = provider.getSigner();
+
+        //     // 使用signer正确定义USDT合约
+        //     const usdtContract = new ethers.Contract(usdtTokenAddress, usdtAbi, signer);
+
+        //     const membershipFee = document.getElementById('membershipFee').value;
+        //     const feeAmountInUSDT = parseFloat(membershipFee); // 输入的USDT数量
+        //     const feeAmountInWei = ethers.utils.parseUnits(feeAmountInUSDT.toString(), 6); // 将输入的USDT数量转换为对应的wei
+
+        //     try {
+        //         // 执行approve操作，允许智能合约扣除对应的USDT
+        //         const approvalTx = await usdtContract.approve(contractAddress, feeAmountInWei);
+        //         console.log(`批准交易hash: ${approvalTx.hash}`);
+        //         // 等待交易确认
+        //         const approvalTxReceipt = await approvalTx.wait();
+        //         console.log('批准交易确认:', approvalTxReceipt);
+
+        //         // 使用签名者实例化你想要交互的合约
+        //         const contractWithSigner = new ethers.Contract(contractAddress, contractABI, signer);
+
+        //         // 调用智能合约的register函数来激活会员资格
+        //         const transactionResponse = await contractWithSigner.register();
+        //         console.log('交易hash:', transactionResponse.hash);
+        //         // 等待交易确认
+        //         const receipt = await transactionResponse.wait();
+        //         console.log('交易确认:', receipt);
+
+        //         // 成功后保存VIP状态到localStorage
+        //         localStorage.setItem('isVIP', 'true');
+        //         document.getElementById('vipStatus').innerHTML = '<strong>VIP会员</strong>';
+        //         alert('注册成功，欢迎成为VIP！');
+        //     } catch (error) {
+        //         console.error('注册失败:', error);
+        //         alert('注册失败，请检查交易详情和网络连接。');
+        //     }
+        // }
+
+        async function joinMembership() {
+    // 检查是否接入了TP钱包（或其他兼容的web3钱包）
+    if (!window.ethereum) {
+        alert('请安装TP钱包或兼容的Web3钱包使用此功能。');
+        return;
+    }
+    try {
+        // 请求用户授权连接账户
+        await window.ethereum.request({method: 'eth_requestAccounts'});
+    } catch (error) {
+        alert('用户授权失败');
+        console.error('用户授权失败:', error);
+        return;
+    }
+
+    // 用window.ethereum初始化Web3提供者
+    const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+    // 获取签名者实例
+    const signer = provider.getSigner();
+
+    const membershipFee = document.getElementById('membershipFee').value;
+    const feeAmountInUSDT = parseFloat(membershipFee); // 会员费用
+    // USDT在BSC上可能符合BEP-20标准，务必确保此处的单位转换正确
+    const feeAmountInWei = ethers.utils.parseUnits(feeAmountInUSDT.toString(), 18); // 根据USDT在BSC的精度进行调整，这里假设是18
+
+    const usdtContract = new ethers.Contract(usdtTokenAddress, usdtAbi, signer);
+
+    try {
+        // 执行approve操作
+        const approvalTx = await usdtContract.approve(contractAddress, feeAmountInWei);
+        console.log(`批准交易hash: ${approvalTx.hash}`);
+        const approvalTxReceipt = await approvalTx.wait();
+        console.log('批准交易确认:', approvalTxReceipt);
+
+        // 实例化会员合约进行注册
+        const contractWithSigner = new ethers.Contract(contractAddress, contractABI, signer);
+        const transactionResponse = await contractWithSigner.register();
+        console.log('交易hash:', transactionResponse.hash);
+        const receipt = await transactionResponse.wait();
+        console.log('交易确认:', receipt);
+
+        localStorage.setItem('isVIP', 'true');
+        document.getElementById('vipStatus').innerHTML = '<strong>VIP会员</strong>';
+        alert('注册成功，欢迎成为VIP！');
+    } catch (error) {
+        console.error('注册失败:', error);
+        alert('注册失败，请检查交易详情和网络连接。');
+    }
+}
+
+
+
+        window.onload = function () {
+            // 检查localStorage看看用户是否是VIP
+            if (localStorage.getItem('isVIP') === 'true') {
+                document.getElementById('vipStatus').innerHTML = '<strong>VIP会员</strong>';
+            }
+        }
+
+    </script>
+</body>
+
+</html>

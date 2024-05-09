@@ -1,0 +1,82 @@
+.main {
+    box-sizing: border-box;
+    display: flex;
+    padding: 0;
+    padding-top: 50px;
+    height: 100vh;
+}
+
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.main h3 {
+    display: block;
+    background-color: #fff;
+    color: #fff;
+    background-color: #0f1d38;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.number {
+    background-color: rgba(255, 255, 255, .4);
+    border-radius: 15px;
+}
+
+.number p {
+    color: #222;
+    padding: 4px 7px;
+    line-height: 1.4;
+}
+
+.main p span {
+    display: block;
+}
+
+.main .card {
+    flex: 1;
+    margin-top: 15px;
+    overflow-y: scroll;
+}
+
+.main .card::-webkit-scrollbar {
+    width: 2px;
+}
+
+.pyuser {
+    background-color: rgba(255, 255, 255, .4);
+    border-radius: 15px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.pyuser img {
+    height: 60px;
+    margin-right: 10px;
+}
+
+.pyuser p {
+    margin-top: 5px;
+}
+
+.pyuser span {
+    margin-top: 3px;
+    font-size: 15px;
+}
+
+.pyuser .up {
+    color: green;
+}
+
+.pyuser .down {
+    color: red;
+}

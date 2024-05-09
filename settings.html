@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/settings.css">
+    <script src="https://cdn.ethers.io/lib/ethers-5.0.umd.min.js"></script>
+    <script src="js/contract.js"></script>
+</head>
+
+<body>
+    <div class="maxbox">
+        <div >
+            <div class="top">
+                <p>设置</p>
+            </div>
+            <div class="main">
+                <button class="return" onclick="history.back()"><img src="images/left-arrow.png" alt=""></button>
+
+                <div class="main-content">
+                    <label for="recipientAddress">receiving address:</label>
+                    <input type="text" id="recipientAddress" placeholder="请输入接收地址" />
+                    <label for="transferAmount">amount(USDT):</label>
+                    <input type="text" id="transferAmount" placeholder="请输入转账金额 (USDT)" />
+                    <button id="transferFundsBtn">transfer</button>
+                    <div id="referrals"></div>
+                    <p id="totalReferrals"></p>
+                    <button id="getContractBalanceBtn">query balance</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(contractAddress, contractABI, signer);
+
+        async function connectWallet() {
+            await provider.send("eth_requestAccounts", []);
+        }
+
+        async function transferFunds() {
+            const recipientAddress = document.getElementById('recipientAddress').value;
+            const amount = document.getElementById('transferAmount').value;
+            if (!recipientAddress || !amount) {
+                alert('请填写接收地址和转账金额。');
+                return;
+            }
+
+            try {
+                await connectWallet();
+                const tx = await contract.transfer(recipientAddress, ethers.utils.parseUnits(amount, 6)); // USDT通常使用6位小数
+                await tx.wait();
+                alert('转账成功！');
+            } catch (error) {
+                console.error(error);
+                alert('转账失败！');
+            }
+        }
+
+        async function getContractBalance() {
+            try {
+                await connectWallet();
+                const balance = await contract.balanceOf(signer.getAddress());
+                alert(`账户余额：${ethers.utils.formatUnits(balance, 6)} USDT`);
+            } catch (error) {
+                console.error(error);
+                alert('查询账户余额失败！');
+            }
+        }
+
+        document.getElementById('transferFundsBtn').addEventListener('click', transferFunds);
+        document.getElementById('getContractBalanceBtn').addEventListener('click', getContractBalance);
+    </script>
+</body>
+
+</html>

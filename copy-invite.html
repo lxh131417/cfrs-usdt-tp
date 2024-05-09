@@ -1,0 +1,218 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的资产</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/invte.css">
+    <script src="https://cdn.ethers.io/lib/ethers-5.0.umd.min.js"></script>
+    <script src="js/contract.js"></script>
+    <style>
+        #currentAddressDisplay {
+            white-space: nowrap;
+          
+            overflow: hidden;
+           
+            text-overflow: ellipsis;
+           
+            max-width: 200px;
+          
+        }
+
+        #homePageURL {
+            white-space: nowrap;
+          
+            overflow: hidden;
+           
+            text-overflow: ellipsis;
+            
+            max-width: 200px;
+            
+        }
+    </style>
+</head>
+
+<body>
+   
+    <div class="maxbox">
+        <div>
+            <div class="top">
+                <p>邀请好友</p>
+            </div>
+            <div class="main">
+                <div class="main-content">
+                    <button onclick="goBack()" class="return"><img src="images/left-arrow.png" alt=""></button>
+                    <div class="panner">
+                        <img src="images/in-main.png" alt="">
+                    </div>
+                    <div class="item">
+                        <h2>邀请你的朋友一起加入</h2>
+
+                        <div class="names">
+                           
+                            <p id="currentAddressDisplay"></p>
+                            
+                            <button onclick="copyText('currentAddressDisplay')"><img src="images/fz.png"
+                                    alt=""></button>
+                        </div>
+
+                        <div class="pylink">
+                          
+                            <p id="homePageURL"></p>
+                          
+                            <button onclick="copyText('homePageURL')"><img src="images/fz.png" alt=""></button>
+                        </div>
+                        <button class="share">分享</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAddress = '';
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const homePageURLSpan = document.getElementById('homePageURL');
+        const currentAddressSpan = document.getElementById('currentAddressDisplay');
+
+        window.onload = async function () {
+            try {
+                await provider.send("eth_requestAccounts", []);
+                const signer = provider.getSigner();
+                currentAddress = await signer.getAddress();
+                currentAddressSpan.textContent = currentAddress;
+            } catch (err) {
+                console.error('获取地址失败:', err);
+            }
+            const homePageURL = window.location.origin;
+            homePageURLSpan.textContent = homePageURL;
+        };
+
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(function () {
+                alert('已复制到剪贴板！');
+            }, function (err) {
+                console.error('无法复制文本:', err);
+            });
+        }
+
+        function goBack() {
+            window.history.back(); 
+        }
+    </script>
+</body>
+
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的资产</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/invte.css">
+    <script src="https://cdn.ethers.io/lib/ethers-5.0.umd.min.js"></script>
+    <script src="js/contract.js"></script>
+    <style>
+        #currentAddressDisplay {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        #homePageURL {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="maxbox">
+        <div>
+            <div class="top">
+                <p>邀请好友</p>
+            </div>
+            <div class="main">
+                <div class="main-content">
+                    <button onclick="goBack()" class="return"><img src="images/left-arrow.png" alt=""></button>
+                    <div class="panner">
+                        <img src="images/in-main.png" alt="">
+                    </div>
+                    <div class="item">
+                        <h2>邀请你的朋友一起加入</h2>
+
+                        <div class="names">
+
+                            <p id="currentAddressDisplay"></p>
+
+                            <button onclick="copyText('currentAddressDisplay')"><img src="images/fz.png"
+                                    alt=""></button>
+                        </div>
+
+                        <div class="pylink">
+
+                            <p id="homePageURL"></p>
+
+                            <button onclick="copyText('homePageURL')"><img src="images/fz.png" alt=""></button>
+                        </div>
+                        <button class="share" id="shareBtn">分享</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAddress = '';
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const homePageURLSpan = document.getElementById('homePageURL');
+        const currentAddressSpan = document.getElementById('currentAddressDisplay');
+        const shareBtn = document.getElementById('shareBtn');
+
+        window.onload = async function () {
+            try {
+                await provider.send("eth_requestAccounts", []);
+                const signer = provider.getSigner();
+                currentAddress = await signer.getAddress();
+                currentAddressSpan.textContent = currentAddress;
+            } catch (err) {
+                console.error('获取地址失败:', err);
+            }
+            const homePageURL = window.location.origin;
+            homePageURLSpan.textContent = homePageURL;
+        };
+
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(function () {
+                alert('已复制到剪贴板！');
+            }, function (err) {
+                console.error('无法复制文本:', err);
+            });
+        }
+
+        function goBack() {
+            window.history.back(); 
+        }
+
+        // Special handling for mobile touch events
+        shareBtn.addEventListener('click', function () {
+            // Implement sharing functionality for mobile devices here
+            alert('分享功能待实现');
+        });
+    </script>
+</body>
+
+</html>

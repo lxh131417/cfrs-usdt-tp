@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的资产</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/detill.css">
+    <script src="https://cdn.ethers.io/lib/ethers-5.0.umd.min.js"></script>
+    <script src="js/contract.js"></script>
+</head>
+
+<body>
+    <div class="maxbox">
+        <div>
+            <div class="top">
+                <p>我的资产</p>
+            </div>
+            <div class="main">
+                <button onclick="history.back()" class="return"><img src="images/left-arrow.png" alt=""></button>
+                <div class="main-content">
+                    <p id="userBonuses">我的奖金分红：</p>
+                    <p id="pendingWithdrawals">可提现余额：</p>
+                    <button class="withdraw-button" onclick="withdrawBonuses()">提取奖金</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const contract = new ethers.Contract(contractAddress, contractABI, provider);
+
+        async function getUserBonuses() {
+            try {
+                const accounts = await provider.send("eth_requestAccounts", []);
+                const userAddress = accounts[0];
+
+                if (!userAddress) {
+                    alert("无法检测到用户地址，请先连接到MetaMask。");
+                    return;
+                }
+
+                const bonuses = await contract.getBonuses(userAddress);
+                console.log("我的奖金分红:", bonuses.toString());
+                document.getElementById("userBonuses").innerText = `我的奖金分红: ${ethers.utils.formatEther(bonuses)} USDT`;
+
+                const pendingAmount = await contract.getPendingWithdrawals(userAddress);
+                document.getElementById("pendingWithdrawals").innerText = `可提现余额: ${ethers.utils.formatEther(pendingAmount)} USDT`;
+
+            } catch (error) {
+                console.error("查询奖金分红失败", error);
+                alert("查询失败，请确保已连接到MetaMask并检查网络。");
+            }
+        }
+
+        async function withdrawBonuses() {
+            try {
+                const withDrawTx = await contract.withdrawPendingBonuses();
+                await withDrawTx.wait();
+                alert("提取成功！");
+                getUserBonuses();  // 更新显示信息
+            } catch (error) {
+                console.error("提取失败", error);
+                alert("提取失败，错误详情见控制台。");
+            }
+        }
+
+        getUserBonuses();
+    </script>
+</body>
+
+</html>

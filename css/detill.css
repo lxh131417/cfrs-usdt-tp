@@ -1,0 +1,25 @@
+.withdraw-button {
+    margin-top: 20px;
+    background-color: #2c92ff;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.main-content {
+    padding:40px 20px;
+    text-align: center;
+}
+
+.main-content p {
+    height: 40px;
+    line-height: 40px;
+    font-size: 18px;
+    color: #333;
+}

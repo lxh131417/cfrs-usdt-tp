@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的社区</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/team.css">
+    <script src="https://cdn.ethers.io/lib/ethers-5.0.umd.min.js"></script>
+    <script src="js/contract.js"></script>
+    <style>
+       .pyuser p  {
+            white-space: nowrap;
+          
+            overflow: hidden;
+           
+            text-overflow: ellipsis;
+           
+            max-width: 200px;
+          
+        }
+    </style>
+</head>
+
+<body>
+    <div class="maxbox">
+        <div>
+            <div class="top">
+                <p>我的社区</p>
+            </div>
+            <div class="main">
+                <div class="main-content">
+                    <button class="return" onclick="history.back()"><img src="images/left-arrow.png" alt=""></button>
+
+
+                    <div class="number">
+                        <p>您的团队有：<span id="totalReferrals">（们）</span></p>
+                        <p>当前活跃的用户：<span id="activeReferralsCount"></span></p>
+                    </div>
+
+                    <div class="card">
+                        <div id="referrals"></div>
+
+                       
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div id="referrals"></div>
+    <script>
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(contractAddress, contractABI, signer);
+
+        async function getTotalReferralCountForCurrentUser() {
+            try {
+                const accounts = await provider.send("eth_requestAccounts", []);
+                const userAddress = accounts[0];
+                if (!userAddress) {
+                    alert("无法检测到用户地址，请先连接到MetaMask。");
+                    return;
+                }
+                const referrals = await contract.getReferralAddresses(userAddress);
+                document.getElementById("totalReferrals").innerText = `我的团队总人数: ${referrals.length}`;
+            } catch (error) {
+                console.error("查询下级团队总数失败", error);
+                alert("查询失败，请确保已连接到MetaMask并检查网络。");
+            }
+        }
+
+        getTotalReferralCountForCurrentUser();
+
+        async function displayReferrals() {
+            const accounts = await provider.send("eth_requestAccounts", []);
+            const referrerAddress = accounts[0];
+            const inactiveReferrals = await contract.getInactiveReferralAddresses(referrerAddress);
+            const referrals = await contract.getReferralAddresses(referrerAddress);
+            for (let address of referrals) {
+                const isActive = !inactiveReferrals.includes(address);
+                const div = document.createElement('div');
+                div.innerText = `${address} - ${isActive ? '已激活' : '未激活'}`;
+                div.className = isActive ? 'active' : 'inactive';
+                document.getElementById('referrals').appendChild(div);
+            }
+        }
+
+
+
+
+        async function displayReferrals() {
+            const accounts = await provider.send("eth_requestAccounts", []);
+            const referrerAddress = accounts[0];
+            const inactiveReferrals = await contract.getInactiveReferralAddresses(referrerAddress);
+            const referrals = await contract.getReferralAddresses(referrerAddress);
+            let activeCount = 0;  // 初始化活跃用户计数器
+
+            for (let address of referrals) {
+                const isActive = !inactiveReferrals.includes(address);
+
+                // 创建一个外层div来模拟您提供的HTML结构
+                const pyuserDiv = document.createElement('div');
+                pyuserDiv.className = "pyuser";
+
+                // 创建图片元素
+                const img = document.createElement('img');
+                img.src = "images/pyusers.png";
+                img.alt = "";
+
+                // 创建<p>元素，并在其中直接使用地址替换 "@12345679"
+                const pElement = document.createElement('p');
+                pElement.innerHTML = `@${address} <span class="${isActive ? 'up' : 'down'}">${isActive ? '已激活' : '未激活'}</span>`;
+
+                // 将图片和<p>标签添加到最外层的div中
+                pyuserDiv.appendChild(img);
+                pyuserDiv.appendChild(pElement);
+
+                // 将整个pyuserDiv添加到页面的指定位置
+                document.getElementById('referrals').appendChild(pyuserDiv);
+
+                if (isActive) activeCount++;  // 如果为活跃状态，计数器增加
+            }
+
+
+
+
+            // 更新活跃用户的显示数值
+            document.getElementById('activeReferralsCount').innerText = `${activeCount}个用户（们）`;
+        }
+
+
+        displayReferrals();
+    </script>
+
+</html>
+</body>
